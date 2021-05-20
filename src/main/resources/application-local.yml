@@ -1,0 +1,50 @@
+logging:
+  file:
+    name: log-sys.log
+  level:
+    org:
+      apache:
+        http: info
+
+app:
+  kafka:
+    producer:
+      topic:
+        openacc: KTB-EVENT-DIPGO-OPENACCOUNT
+spring:
+  kafka:
+    properties:
+      security:
+        protocol: SASL_PLAINTEXT
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";
+
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        #retries: 20
+        retry:
+          backoff:
+            ms: 1000 #default 100
+        reconnect:
+          backoff:
+           ms: 500 #default 50
+           max:
+             ms: 1000 #default 1000
+    consumer:
+      bootstrap-servers: localhost:9092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+         json:
+          trusted:
+           packages: com.example.kafka_poc.model
+        retries: 3
+  mandatory:
+    file:
+      encoding: UTF-8
